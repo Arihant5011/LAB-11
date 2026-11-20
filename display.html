@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Details</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="card" id="output" aria-live="polite"></main>
+
+<script>
+const out = document.getElementById("output");
+const raw = sessionStorage.getItem("userInfo");
+
+function esc(s){
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+if(!raw){
+  out.innerHTML =
+    '<h1>No details yet</h1>' +
+    '<p class="sub">Fill in the form first, then your details will show up here.</p>' +
+    '<a class="btn" href="index.html">Go to form</a>';
+}else{
+  const u = JSON.parse(raw);
+  const rows = [
+    ["Full name", u.name],
+    ["Gender", u.gender],
+    ["Mobile number", u.mobile],
+    ["Email ID", u.email],
+    ["City", u.city],
+    ["State", u.state],
+    ["Country", u.country]
+  ];
+  out.innerHTML =
+    '<div class="profile-head">' +
+      '<div class="avatar">' + esc(u.name.charAt(0).toUpperCase()) + '</div>' +
+      '<div><h1>' + esc(u.name) + '</h1><p class="sub" style="margin:0">Details submitted successfully</p></div>' +
+    '</div>' +
+    '<dl>' + rows.map(r => '<div class="row"><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>').join("") + '</dl>' +
+    '<div class="actions">' +
+      '<a class="btn" href="index.html">Fill again</a>' +
+      '<button class="btn ghost" id="clearBtn" type="button">Clear data</button>' +
+    '</div>';
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    sessionStorage.removeItem("userInfo");
+    location.reload();
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="card">
+  <h1>Create your profile</h1>
+  <p class="sub">Fill in your details. You'll see them on the next page.</p>
+
+  <form id="userForm" novalidate>
+    <div class="grid">
+      <div class="field full">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Arihant Kumar" autocomplete="name">
+        <span class="msg">Enter your name using letters only (min 2 characters).</span>
+      </div>
+
+      <fieldset class="field full">
+        <legend>Gender</legend>
+        <div class="radios">
+          <label><input type="radio" name="gender" value="Male"> Male</label>
+          <label><input type="radio" name="gender" value="Female"> Female</label>
+          <label><input type="radio" name="gender" value="Other"> Other</label>
+        </div>
+        <span class="msg">Please select a gender.</span>
+      </fieldset>
+
+      <div class="field">
+        <label for="mobile">Mobile number</label>
+        <input type="tel" id="mobile" name="mobile" placeholder="10-digit number" maxlength="10" inputmode="numeric" autocomplete="tel">
+        <span class="msg">Enter a valid 10-digit number starting with 6-9.</span>
+      </div>
+
+      <div class="field">
+        <label for="email">Email ID</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email">
+        <span class="msg">Enter a valid email address.</span>
+      </div>
+
+      <div class="field">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" placeholder="e.g. Bengaluru" autocomplete="address-level2">
+        <span class="msg">Enter your city.</span>
+      </div>
+
+      <div class="field">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" placeholder="e.g. Karnataka" autocomplete="address-level1">
+        <span class="msg">Enter your state.</span>
+      </div>
+
+      <div class="field full">
+        <label for="country">Country</label>
+        <select id="country" name="country">
+          <option value="">Select a country</option>
+          <option>India</option>
+          <option>United States</option>
+          <option>United Kingdom</option>
+          <option>Canada</option>
+          <option>Australia</option>
+          <option>Germany</option>
+          <option>Singapore</option>
+          <option>United Arab Emirates</option>
+          <option>Other</option>
+        </select>
+        <span class="msg">Please choose a country.</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn">Save and view details</button>
+      <button type="reset" class="btn ghost" id="resetBtn">Clear form</button>
+    </div>
+  </form>
+</main>
+
+<script>
+const form = document.getElementById("userForm");
+
+// validation rules: each returns true when the value is OK
+const rules = {
+  name:    v => /^[A-Za-z][A-Za-z .'-]{1,}$/.test(v.trim()),
+  gender:  v => v !== "",
+  mobile:  v => /^[6-9]\d{9}$/.test(v),
+  email:   v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v),
+  city:    v => v.trim().length >= 2,
+  state:   v => v.trim().length >= 2,
+  country: v => v !== ""
+};
+
+function getValue(name){
+  if(name === "gender"){
+    const checked = form.querySelector('input[name="gender"]:checked');
+    return checked ? checked.value : "";
+  }
+  return form.elements[name].value;
+}
+
+function check(name){
+  const ok = rules[name](getValue(name));
+  const field = (name === "gender"
+    ? form.querySelector("fieldset")
+    : form.elements[name].closest(".field"));
+  field.classList.toggle("invalid", !ok);
+  return ok;
+}
+
+// live feedback once the user leaves a field
+Object.keys(rules).forEach(name => {
+  const els = form.querySelectorAll('[name="' + name + '"]');
+  els.forEach(el => el.addEventListener(name === "gender" ? "change" : "blur", () => check(name)));
+});
+
+// allow digits only in mobile field
+form.elements.mobile.addEventListener("input", e => {
+  e.target.value = e.target.value.replace(/\D/g, "");
+});
+
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const results = Object.keys(rules).map(check);
+  if(results.includes(false)){
+    form.querySelector(".invalid input, .invalid select").focus();
+    return;
+  }
+  const data = {};
+  Object.keys(rules).forEach(n => data[n] = getValue(n).trim());
+  sessionStorage.setItem("userInfo", JSON.stringify(data));
+  window.location.href = "display.html";
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  form.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
+});
+</script>
+</body>
+</html>
